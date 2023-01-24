@@ -1,6 +1,13 @@
 import pandas as pd
 
-
+data = {'custom_id': '63c990ca519cd430c0af55dc46c75ac5',
+        'components': [{'type': 1, 'components': [{'value': '장연철', 'type': 4, 'custom_id': '609bc595f25d831bd764f66402a2756b'}]},
+                        {'type': 1, 'components': [{'value': '950522', 'type': 4, 'custom_id': '0ef26810b8e8654b11583c7e85489c6b'}]}, 
+                        {'type': 1, 'components': [{'value': '중중중', 'type': 4, 'custom_id': '6d04761e70b8b6ce93eb547840b47560'}]}, 
+                        {'type': 1, 'components': [{'value': '010-9452-5774', 'type': 4, 'custom_id': '817eb7601800f12edef74dd7800a66dc'}]}, 
+                        {'type': 1, 'components': [{'value': '010-9034-1448', 'type': 4, 'custom_id': '9b8c3622db197beacf82a96da44cbd62'}]}
+                        ]
+        }
 
 
 student_info_data = {'discord id': ["'1058626232431951912"], 'discord name' : ["장연철#6966"], '이름' : ["장연철"], '생년월일' : ["`950522"], '학교' : ["난우중학교"], '연락처' : ["010-9452-5774"]}
