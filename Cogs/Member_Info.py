@@ -6,6 +6,14 @@ from discord.ext import commands
 # 1. 회원정보    2. 시험성적    3. 
 file_names = ["member_info", "exam_grades"]
 
+last_member_data = None
+
+def import_member_data(file_name, id):
+    global last_member_data
+    if check_id(file_name, id):
+        last_member_data = load_file(file_name).loc[f"'{id}"]
+    else:
+        last_member_data = None
 
 #csv파일 불러오기
 def load_file(file_name):
@@ -34,38 +42,44 @@ class Member_Info(commands.Cog):
     
     @commands.command(aliases=['정보'])
     async def information(self, ctx):
-        await ctx.send("원하는 활동을 선택해주세요.(10초)", view=InfoButtonView(), delete_after=20)
+        await ctx.send("원하는 활동을 선택해주세요.(10초)", view=InfoButtonView())
 
 #정보 활동 선택
 class InfoButtonView(discord.ui.View):
-    def __init__(self, *, timeout = 10):
+    def __init__(self, *, timeout = 180):
         super().__init__(timeout=timeout)
     
     @discord.ui.button(label="정보 등록", style=discord.ButtonStyle.primary)
     async def create_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if check_id(file_names[0], interaction.user.id):
-            await interaction.response.send_message("이미 등록된 ID 입니다.", delete_after=20)
+        import_member_data(file_names[0], interaction.user.id)
+        if last_member_data is not None :
+            await interaction.response.send_message("이미 등록된 ID 입니다.")
         else :
             await interaction.response.send_message("역할을 선택하세요.(10초)", view=CreateButtonView())
         self.stop()
     @discord.ui.button(label="정보 수정", style=discord.ButtonStyle.primary)
     async def update_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if check_id(file_names[0], interaction.user.id):
+        import_member_data(file_names[0], interaction.user.id)
+        if last_member_data is not None :
+            UpdateStudentModal.last_member_data = last_member_data
             await interaction.response.send_modal(UpdateStudentModal())
-        else:
-            await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.", delete_after=20)
+        else :
+            await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.")
         self.stop()
     @discord.ui.button(label="정보 조회", style=discord.ButtonStyle.primary)
     async def read_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if check_id(file_names[0], interaction.user.id):
-            test_var = "test_var"
+        import_member_data(file_names[0], interaction.user.id)
+        if last_member_data is not None :
             await interaction.response.send_message(view=CreateButtonView())
-        else:
+            print(last_member_data)
+            print(type(last_member_data["이름"]))
+        else :
             await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.")
         self.stop()
     @discord.ui.button(label="정보 삭제", style=discord.ButtonStyle.danger)
     async def delete_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if check_id(file_names[0], interaction.user.id):
+        import_member_data(file_names[0], interaction.user.id)
+        if last_member_data is not None :
             await interaction.response.send_message("정보를 삭제하시면 점수, 코인 등의 데이터는 복구되지 않습니다.")
         else:
             await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.")
@@ -74,7 +88,7 @@ class InfoButtonView(discord.ui.View):
 #정보등록
 #학생/일반 선택
 class CreateButtonView(discord.ui.View):
-    def __init__(self, *, timeout = 10):
+    def __init__(self, *, timeout = 180):
         super().__init__(timeout=timeout)
     @discord.ui.button(label="학생", style=discord.ButtonStyle.green)
     async def student_button(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -119,11 +133,19 @@ class CreatePeopleModal(discord.ui.Modal, title="정보 등록(일반)"):
 
 #정보수정
 class UpdateStudentModal(discord.ui.Modal, title="정보 수정(학생)"):
-    name = discord.ui.TextInput(label="이름", placeholder="장수학", default="default name")
-    birth_date = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522")
-    school = discord.ui.TextInput(label="학교", placeholder="한국중학교")
-    phone_number1 = discord.ui.TextInput(label="개인 연락처", placeholder="010-1234-5678")
-    phone_number2 = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678")
+    member_data = None
+    if member_data is not None :
+        name = discord.ui.TextInput(label="이름", placeholder="장수학", default=member_data["이름"])
+        birth_date = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522", default=member_data["생년월일"])
+        school = discord.ui.TextInput(label="학교", placeholder="한국중학교", default=member_data["학교"])
+        phone_number1 = discord.ui.TextInput(label="개인 연락처", placeholder="010-1234-5678", default=member_data["개인 연락처"])
+        phone_number2 = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678", default=member_data["부모님 연락처"])
+    else :
+        name = discord.ui.TextInput(label="이름", placeholder="장수학")
+        birth_date = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522")
+        school = discord.ui.TextInput(label="학교", placeholder="한국중학교")
+        phone_number1 = discord.ui.TextInput(label="개인 연락처", placeholder="010-1234-5678")
+        phone_number2 = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678")
     async def on_submit(self, interaction: discord.Interaction) -> None:
         discord_id = str(interaction.user.id)
         discord_name = str(interaction.user)
@@ -134,7 +156,6 @@ class UpdateStudentModal(discord.ui.Modal, title="정보 수정(학생)"):
         personal_phone_number = interaction.data["components"][3]["components"][0]["value"]
         parents_phone_number = interaction.data["components"][4]["components"][0]["value"]
         register(file_names[0], discord_id, [discord_name, role, name, birth, school, personal_phone_number, parents_phone_number])
-        register(file_names[1], discord_id, [None, None, None, None, None, None, None, None, None, None, None, None])
         await interaction.response.send_message(f"{interaction.user}님의 정보가 수정되었습니다.", ephemeral=True)
     
 
