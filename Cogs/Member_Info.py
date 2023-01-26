@@ -6,6 +6,7 @@ from discord.ext import commands
 # 1. 회원정보    2. 시험성적    3. 
 file_names = ["member_info", "exam_grades"]
 
+last_call_member_id = None
 last_member_data = None
 
 def import_member_data(file_name, id):
@@ -65,7 +66,7 @@ class Member_Info(commands.Cog):
     
     @commands.command(aliases=['정보'])
     async def information(self, ctx):
-        await ctx.send("원하는 활동을 선택해주세요.(10초)", view=InfoButtonView())
+        await ctx.send("원하는 활동을 선택해주세요.(10초)", view=InfoButtonView(), ephemeral=True)
 
 #정보 활동 선택
 class InfoButtonView(discord.ui.View):
@@ -76,10 +77,10 @@ class InfoButtonView(discord.ui.View):
     async def create_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         import_member_data(file_names[0], interaction.user.id)
         if last_member_data is not None :
-            await interaction.response.send_message("이미 등록된 ID 입니다.")
+            await interaction.response.send_message("이미 등록된 ID 입니다.", ephemeral=True)
         else :
             default_CreateStudentModal(False)
-            await interaction.response.send_message("역할을 선택하세요.(10초)", view=CreateButtonView())
+            await interaction.response.send_message("역할을 선택하세요.(10초)", view=CreateButtonView(), ephemeral=True)
         self.stop()
     @discord.ui.button(label="정보 수정", style=discord.ButtonStyle.primary)
     async def update_button(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -89,23 +90,23 @@ class InfoButtonView(discord.ui.View):
             await interaction.response.send_modal(CreateStudentModal())
         else :
             default_CreateStudentModal(False)
-            await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.")
+            await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.", ephemeral=True)
         self.stop()
     @discord.ui.button(label="정보 조회", style=discord.ButtonStyle.primary)
     async def read_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         import_member_data(file_names[0], interaction.user.id)
         if last_member_data is not None :
-            await interaction.response.send_message(view=CreateButtonView())
+            await interaction.response.send_message(last_member_data, ephemeral=True)
         else :
-            await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.")
+            await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.", ephemeral=True)
         self.stop()
     @discord.ui.button(label="정보 삭제", style=discord.ButtonStyle.danger)
     async def delete_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         import_member_data(file_names[0], interaction.user.id)
         if last_member_data is not None :
-            await interaction.response.send_message("정보를 삭제하시면 점수, 코인 등의 데이터는 복구되지 않습니다.")
+            await interaction.response.send_message("정보를 삭제하시면 점수, 코인 등의 데이터는 복구되지 않습니다.", ephemeral=True)
         else:
-            await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.")
+            await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.", ephemeral=True)
         self.stop()
 
 #정보등록
