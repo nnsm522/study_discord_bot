@@ -35,6 +35,29 @@ def register(file_name, id, data:list):
     dataframe.loc[f"'{id}"] = data
     dataframe.to_csv(f"data/{file_name}.csv", encoding='utf-8-sig')
 
+#정보 수정
+def default_CreateStudentModal(bool):
+    global last_member_data
+    if bool:
+        CreateStudentModal.name.default = str(last_member_data["이름"])
+        CreateStudentModal.birth_date.default = str(last_member_data["생년월일"])
+        CreateStudentModal.school.default = str(last_member_data["학교"])
+        CreateStudentModal.phone_number1.default = str(last_member_data["개인 연락처"])
+        CreateStudentModal.phone_number2.default = str(last_member_data["부모님 연락처"])
+    else :
+        CreateStudentModal.name.default = None
+        CreateStudentModal.birth_date.default = None
+        CreateStudentModal.school.default = None
+        CreateStudentModal.phone_number1.default = None
+        CreateStudentModal.phone_number2.default = None
+def default_CreatePeopleModal(bool):
+    global last_member_data
+    if bool:
+        CreatePeopleModal.name.default = str(last_member_data["이름"])
+        CreatePeopleModal.phone_number1.default = str(last_member_data["개인 연락처"])
+    else :
+        CreatePeopleModal.name.default = None
+        CreatePeopleModal.phone_number1.default = None
 
 class Member_Info(commands.Cog):
     def __init__(self, bot):
@@ -55,15 +78,17 @@ class InfoButtonView(discord.ui.View):
         if last_member_data is not None :
             await interaction.response.send_message("이미 등록된 ID 입니다.")
         else :
+            default_CreateStudentModal(False)
             await interaction.response.send_message("역할을 선택하세요.(10초)", view=CreateButtonView())
         self.stop()
     @discord.ui.button(label="정보 수정", style=discord.ButtonStyle.primary)
     async def update_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         import_member_data(file_names[0], interaction.user.id)
         if last_member_data is not None :
-            UpdateStudentModal.last_member_data = last_member_data
-            await interaction.response.send_modal(UpdateStudentModal())
+            default_CreateStudentModal(True)
+            await interaction.response.send_modal(CreateStudentModal())
         else :
+            default_CreateStudentModal(False)
             await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.")
         self.stop()
     @discord.ui.button(label="정보 조회", style=discord.ButtonStyle.primary)
@@ -71,8 +96,6 @@ class InfoButtonView(discord.ui.View):
         import_member_data(file_names[0], interaction.user.id)
         if last_member_data is not None :
             await interaction.response.send_message(view=CreateButtonView())
-            print(last_member_data)
-            print(type(last_member_data["이름"]))
         else :
             await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.")
         self.stop()
@@ -96,13 +119,14 @@ class CreateButtonView(discord.ui.View):
     @discord.ui.button(label="일반", style=discord.ButtonStyle.blurple)
     async def people_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(CreatePeopleModal())
+
 #학생 모달창에서 정보 입력
 class CreateStudentModal(discord.ui.Modal, title="정보 등록(학생)"):
-    name = discord.ui.TextInput(label="이름", placeholder="장수학")
-    birth_date = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522")
-    school = discord.ui.TextInput(label="학교", placeholder="한국중학교")
-    phone_number1 = discord.ui.TextInput(label="개인 연락처", placeholder="010-1234-5678")
-    phone_number2 = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678")
+    name = discord.ui.TextInput(label="이름", placeholder="장수학", default="None")
+    birth_date = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522", default="123456")
+    school = discord.ui.TextInput(label="학교", placeholder="한국중학교", default="None")
+    phone_number1 = discord.ui.TextInput(label="개인 연락처", placeholder="010-1234-5678", default="None")
+    phone_number2 = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678", default="None")
     async def on_submit(self, interaction: discord.Interaction) -> None:
         discord_id = str(interaction.user.id)
         discord_name = str(interaction.user)
@@ -130,34 +154,6 @@ class CreatePeopleModal(discord.ui.Modal, title="정보 등록(일반)"):
         parents_phone_number = None
         register(file_names[0], discord_id, [discord_name, role, name, birth, school, personal_phone_number, parents_phone_number])
         await interaction.response.send_message(f"{interaction.user}님의 정보가 등록되었습니다.", ephemeral=True)
-
-#정보수정
-class UpdateStudentModal(discord.ui.Modal, title="정보 수정(학생)"):
-    member_data = None
-    if member_data is not None :
-        name = discord.ui.TextInput(label="이름", placeholder="장수학", default=member_data["이름"])
-        birth_date = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522", default=member_data["생년월일"])
-        school = discord.ui.TextInput(label="학교", placeholder="한국중학교", default=member_data["학교"])
-        phone_number1 = discord.ui.TextInput(label="개인 연락처", placeholder="010-1234-5678", default=member_data["개인 연락처"])
-        phone_number2 = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678", default=member_data["부모님 연락처"])
-    else :
-        name = discord.ui.TextInput(label="이름", placeholder="장수학")
-        birth_date = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522")
-        school = discord.ui.TextInput(label="학교", placeholder="한국중학교")
-        phone_number1 = discord.ui.TextInput(label="개인 연락처", placeholder="010-1234-5678")
-        phone_number2 = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678")
-    async def on_submit(self, interaction: discord.Interaction) -> None:
-        discord_id = str(interaction.user.id)
-        discord_name = str(interaction.user)
-        role = "학생"
-        name = interaction.data["components"][0]["components"][0]["value"]
-        birth = interaction.data["components"][1]["components"][0]["value"]
-        school = interaction.data["components"][2]["components"][0]["value"]
-        personal_phone_number = interaction.data["components"][3]["components"][0]["value"]
-        parents_phone_number = interaction.data["components"][4]["components"][0]["value"]
-        register(file_names[0], discord_id, [discord_name, role, name, birth, school, personal_phone_number, parents_phone_number])
-        await interaction.response.send_message(f"{interaction.user}님의 정보가 수정되었습니다.", ephemeral=True)
-    
 
 
 

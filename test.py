@@ -7,5 +7,4 @@ def load_file(file_name):
 
 df = load_file("member_info")
 
-if df is not None :
-    print("hi")
+print(type(df.loc[f"'1058626232431951912"]["이름"]))
