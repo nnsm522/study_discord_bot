@@ -1,8 +1,12 @@
 import pandas as pd
-import os
 import discord
+from discord import app_commands
 from discord.ext import commands
 
+
+#######################################
+###############함수 파트################
+#######################################
 # 1. 회원정보    2. 시험성적    3. 
 file_names = ["member_info", "exam_grades"]
 
@@ -60,13 +64,23 @@ def default_CreatePeopleModal(bool):
         CreatePeopleModal.name.default = None
         CreatePeopleModal.phone_number1.default = None
 
-class Member_Info(commands.Cog):
-    def __init__(self, bot):
+
+#######################################
+#############클래스 파트################
+#######################################
+class Information(commands.Cog):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-    
-    @commands.command(aliases=['정보'])
-    async def information(self, ctx):
-        await ctx.send("원하는 활동을 선택해주세요.(10초)", view=InfoButtonView(), ephemeral=True)
+        print("Info Cog loaded")
+
+    @commands.command()
+    async def sync(self, ctx):
+        fmt = await ctx.bot.tree.sync(guild=ctx.guild)
+        await ctx.send(f"Synced {len(fmt)} commands")
+
+    @app_commands.command(name="정보", description="정보 등록, 수정, 조회, 삭제 기능")
+    async def information(self, interaction: discord.Interaction):
+        await interaction.response.send_message("원하는 활동을 선택해주세요.(10초)", view=InfoButtonView(), ephemeral=True)
 
 #정보 활동 선택
 class InfoButtonView(discord.ui.View):
@@ -157,6 +171,5 @@ class CreatePeopleModal(discord.ui.Modal, title="정보 등록(일반)"):
         await interaction.response.send_message(f"{interaction.user}님의 정보가 등록되었습니다.", ephemeral=True)
 
 
-
 async def setup(bot):
-    await bot.add_cog(Member_Info(bot))
+    await bot.add_cog(Information(bot))
