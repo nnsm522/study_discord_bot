@@ -73,10 +73,6 @@ class Information(commands.Cog):
         self.bot = bot
         print("Info Cog loaded")
 
-    async def sync(self, ctx):
-        fmt = await ctx.bot.tree.sync(guild=ctx.guild)
-        await ctx.send(f"Synced {len(fmt)} commands")
-
     @app_commands.command(name="정보", description="정보 등록, 수정, 조회, 삭제 기능")
     async def information(self, interaction: discord.Interaction):
         await interaction.response.send_message("원하는 활동을 선택해주세요.(10초)", view=InfoButtonView(), ephemeral=True)
@@ -187,4 +183,4 @@ class DeleteButtonView(discord.ui.View):
         await interaction.response.send_message("취소되었습니다.")
 
 async def setup(bot):
-    await bot.add_cog(Information(bot))
+    await bot.add_cog(Information(bot), guilds=[discord.Object(id=1060440200192475206)])
