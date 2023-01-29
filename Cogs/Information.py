@@ -25,8 +25,20 @@ def import_member_data(discord_id):
 
 def update_member_data(discord_id, discord_name,
         name, birth, school, personal_phone_number, parents_phone_number,
-        exam_grades=[None, None, None, None, None, None, None, None, None, None, None, None],
-        r_coin=0):
+        exam_grades={
+            "1-1중간": None,
+            "1-1기말": None,
+            "1-2중간": None,
+            "1-2기말": None,
+            "2-1중간": None,
+            "2-1기말": None,
+            "2-2중간": None,
+            "2-2기말": None,
+            "3-1중간": None,
+            "3-1기말": None,
+            "3-2중간": None,
+            "3-2기말": None,
+        }, r_coin=0):
     global db
     key = {"discord_id": discord_id}
     data = {
@@ -37,20 +49,7 @@ def update_member_data(discord_id, discord_name,
         "학교": school,
         "개인_연락처": personal_phone_number,
         "부모님_연락처": parents_phone_number,
-        "성적": {
-            "1-1중간": exam_grades[0],
-            "1-1기말": exam_grades[1],
-            "1-2중간": exam_grades[2],
-            "1-2기말": exam_grades[3],
-            "2-1중간": exam_grades[4],
-            "2-1기말": exam_grades[5],
-            "2-2중간": exam_grades[6],
-            "2-2기말": exam_grades[7],
-            "3-1중간": exam_grades[8],
-            "3-1기말": exam_grades[9],
-            "3-2중간": exam_grades[10],
-            "3-2기말": exam_grades[11],
-        },
+        "성적": exam_grades,
         "r_coin": r_coin
     }
     try:
@@ -132,7 +131,7 @@ class InfoButtonView(discord.ui.View):
     async def read_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         import_member_data(interaction.user.id)
         if last_member_data is not None :
-            await interaction.response.send_message(, ephemeral=True)
+            await interaction.response.send_message(read_data(), ephemeral=True)
         else :
             await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.", ephemeral=True)
         self.stop()
@@ -162,16 +161,28 @@ class CreateStudentModal(discord.ui.Modal, title="정보 등록"):
         school = interaction.data["components"][2]["components"][0]["value"]
         personal_phone_number = interaction.data["components"][3]["components"][0]["value"]
         parents_phone_number = interaction.data["components"][4]["components"][0]["value"]
-        update_member_data(
-            discord_id=discord_id,
-            discord_name=discord_name,
-            name=name,
-            birth=birth,
-            school=school,
-            personal_phone_number=personal_phone_number,
-            parents_phone_number=parents_phone_number,
-            
-        )
+        if last_member_data is not None:
+            update_member_data(
+                discord_id=discord_id,
+                discord_name=discord_name,
+                name=name,
+                birth=birth,
+                school=school,
+                personal_phone_number=personal_phone_number,
+                parents_phone_number=parents_phone_number,
+                exam_grades=last_member_data["성적"],
+                r_coin=last_member_data["r_coin"]
+            )
+        else:
+            update_member_data(
+                discord_id=discord_id,
+                discord_name=discord_name,
+                name=name,
+                birth=birth,
+                school=school,
+                personal_phone_number=personal_phone_number,
+                parents_phone_number=parents_phone_number
+            )
         await interaction.response.send_message(f"{interaction.user}님의 정보가 등록되었습니다.", ephemeral=True)
 
 #삭제, 취소 버튼

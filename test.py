@@ -50,9 +50,13 @@ def update_member_data(discord_id, discord_name,
 update_member_data(1058626232431951912, "테스트#1234", "장연철", "950522", "난우중", "010-9452-5774", "010-9034-1448")
 
 
-a = db.member_data.find_one({"discord_id": 1058626232431951911})
+a = db.member_data.find_one({"discord_id": 1058626232431951912})
 
 print(a["성적"])
 
-def func(a=[None, None]):
+def k(a=2, b=3):
     print(a)
+    print(b)
+    print(a+b)
+
+k(a=None, b=1)
