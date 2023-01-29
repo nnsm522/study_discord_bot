@@ -3,17 +3,18 @@ from dotenv import load_dotenv
 import pymongo
 import discord
 from discord.ext import commands
-from discord import app_commands
-import asyncio
 
 load_dotenv(".env")
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 MONGO_URL = os.getenv('MONGO_URL')
 APP_ID = os.getenv('APP_ID')
+GUILD_ID = os.getenv('GUILD_ID')
 
 
-client = pymongo.MongoClient(MONGO_URL)
-db = client.test
+mongo_client = pymongo.MongoClient(MONGO_URL)
+member_info = mongo_client.member_info
+exam_grades = mongo_client.exam_grades
+r_coin = mongo_client.r_coin
 
 
 class MyBot(commands.Bot):
@@ -30,7 +31,7 @@ class MyBot(commands.Bot):
         for f in os.listdir("./Cogs"):
             if f.endswith(".py"):
                 await self.load_extension("Cogs." + f[:-3])
-        await self.tree.sync(guild=discord.Object(id=1060440200192475206))
+        await self.tree.sync(guild=discord.Object(id=GUILD_ID))
         print("slash command synced!")
 
 bot = MyBot()
