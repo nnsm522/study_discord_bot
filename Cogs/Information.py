@@ -100,7 +100,7 @@ class Information(commands.Cog):
         self.bot = bot
         print("Info Cog loaded")
 
-    @app_commands.command(name="정보관련", description="정보 등록, 수정, 조회, 삭제 기능")
+    @app_commands.command(name="정보", description="정보 등록, 수정, 조회, 삭제 기능")
     async def information(self, interaction: discord.Interaction):
         await interaction.response.send_message("원하는 활동을 선택해주세요.", view=InfoButtonView(), ephemeral=True)
 
@@ -131,7 +131,7 @@ class InfoButtonView(discord.ui.View):
     async def read_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         import_member_data(interaction.user.id)
         if last_member_data is not None :
-            await interaction.response.send_message(read_data(), ephemeral=True)
+            await interaction.response.send_message(read_data(last_member_data), ephemeral=True)
         else :
             await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.", ephemeral=True)
         self.stop()
