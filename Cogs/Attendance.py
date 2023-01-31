@@ -23,12 +23,12 @@ class Attendance(commands.Cog):
     async def attendance(self, ctx):
         if(ctx.author == ctx.guild.owner):
             await ctx.send(ctx.channel)
-            await ctx.send(str(ctx.channel) == "봇테스트")
-            await ctx.send(ctx.channel=="봇테스트")
-            await ctx.send(ctx.channel.members)
-            for member in ctx.channel.members:
-                await ctx.send(member.name)
-            await ctx.send("출석체크 완료")
+            if str(ctx.channel) == "수업":
+                for member in ctx.channel.members:
+                    await ctx.send(member.name)
+                await ctx.send("출석체크 완료")
+            else:
+                await ctx.send("수업 채널에서만 출석체크가 가능합니다.")
         else:
             await ctx.send("선생님만 출석체크가 가능합니다.")
 
