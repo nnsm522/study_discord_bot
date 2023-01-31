@@ -14,6 +14,11 @@ db = mongo_client.member
 last_member_data = None
 
 
+def give_coin(key:dict):
+    db.member_data.update_one(key, {"$inc": {"r_coin": 100}}, True)
+
+
+
 class Attendance(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -22,10 +27,17 @@ class Attendance(commands.Cog):
     @commands.command(name="출석")
     async def attendance(self, ctx):
         if(ctx.author == ctx.guild.owner):
-            await ctx.send(ctx.channel)
             if str(ctx.channel) == "수업":
                 for member in ctx.channel.members:
-                    await ctx.send(member.name)
+                    try:
+                        give_coin({"discord_id": member.id})
+                    except Exception as e:
+                        await ctx.send(f"오류로 인해 {member.name} 님의 알코인은 적립되지 않았습니다.")
+                        print(e)
+                    else:
+                        await ctx.send(f"{member.name} 님에게 100 알코인이 적립되었습니다.")
+
+                        
                 await ctx.send("출석체크 완료")
             else:
                 await ctx.send("수업 채널에서만 출석체크가 가능합니다.")
