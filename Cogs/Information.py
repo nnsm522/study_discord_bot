@@ -87,6 +87,7 @@ def default_data_setting(last_member_data):
 #정보조회 내용
 def read_data(data):
     return f"""
+{data["discord_name"]} 님의 정보입니다.
 이름 : {data["이름"]}
 생년월일 : {data["생년월일"]}
 학교 : {data["학교"]}
