@@ -148,10 +148,10 @@ class InfoButtonView(discord.ui.View):
 
 #모달창에서 정보 입력
 class CreateStudentModal(discord.ui.Modal, title="정보 등록"):
-    name = discord.ui.TextInput(label="이름", placeholder="장수학")
+    name = discord.ui.TextInput(label="이름", placeholder="장수학", max_length=15)
     birth = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522")
-    school = discord.ui.TextInput(label="학교", placeholder="한국중학교")
-    parents_phone_number = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678")
+    school = discord.ui.TextInput(label="학교", placeholder="한국중학교", max_length=15, required=False)
+    parents_phone_number = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678", min_length=10, max_length=15, required=False)
     email = discord.ui.TextInput(label="구글 클래스룸 이메일", placeholder="r_math123@gmail.com")
     async def on_submit(self, interaction: discord.Interaction) -> None:
         import_member_data(interaction.user.id)
