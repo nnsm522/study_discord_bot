@@ -24,7 +24,7 @@ def import_member_data(discord_id):
     last_member_data = db.member_data.find_one({"discord_id": discord_id})
 
 def update_member_data(discord_id, discord_name,
-        name, birth, school, personal_phone_number, parents_phone_number,
+        name, birth, school, parents_phone_number, email,
         exam_grades={
             "1-1중간": None,
             "1-1기말": None,
@@ -47,8 +47,8 @@ def update_member_data(discord_id, discord_name,
         "이름": name,
         "생년월일": birth,
         "학교": school,
-        "개인_연락처": personal_phone_number,
         "부모님_연락처": parents_phone_number,
+        "이메일": email,
         "성적": exam_grades,
         "r_coin": r_coin
     }
@@ -75,14 +75,14 @@ def default_data_setting(last_member_data):
         CreateStudentModal.name.default = last_member_data["이름"]
         CreateStudentModal.birth.default = last_member_data["생년월일"]
         CreateStudentModal.school.default = last_member_data["학교"]
-        CreateStudentModal.personal_phone_number.default = last_member_data["개인_연락처"]
         CreateStudentModal.parents_phone_number.default = last_member_data["부모님_연락처"]
+        CreateStudentModal.email.default = last_member_data["이메일"]
     else:
         CreateStudentModal.name.default = None
         CreateStudentModal.birth.default = None
         CreateStudentModal.school.default = None
-        CreateStudentModal.personal_phone_number.default = None
         CreateStudentModal.parents_phone_number.default = None
+        CreateStudentModal.email.default = None
 
 #정보조회 내용
 def read_data(data):
@@ -151,8 +151,8 @@ class CreateStudentModal(discord.ui.Modal, title="정보 등록"):
     name = discord.ui.TextInput(label="이름", placeholder="장수학")
     birth = discord.ui.TextInput(label="생년월일(주민등록번호 앞자리)", min_length=6, max_length=6, placeholder="120522")
     school = discord.ui.TextInput(label="학교", placeholder="한국중학교")
-    personal_phone_number = discord.ui.TextInput(label="개인 연락처", placeholder="010-1234-5678")
     parents_phone_number = discord.ui.TextInput(label="부모님 연락처", placeholder="010-1234-5678")
+    email = discord.ui.TextInput(label="구글 클래스룸 이메일", placeholder="r_math123@gmail.com")
     async def on_submit(self, interaction: discord.Interaction) -> None:
         import_member_data(interaction.user.id)
         discord_id = interaction.user.id
@@ -160,8 +160,8 @@ class CreateStudentModal(discord.ui.Modal, title="정보 등록"):
         name = interaction.data["components"][0]["components"][0]["value"]
         birth = interaction.data["components"][1]["components"][0]["value"]
         school = interaction.data["components"][2]["components"][0]["value"]
-        personal_phone_number = interaction.data["components"][3]["components"][0]["value"]
-        parents_phone_number = interaction.data["components"][4]["components"][0]["value"]
+        parents_phone_number = interaction.data["components"][3]["components"][0]["value"]
+        email = interaction.data["components"][4]["components"][0]["value"]
         if last_member_data is not None:
             update_member_data(
                 discord_id=discord_id,
@@ -169,8 +169,8 @@ class CreateStudentModal(discord.ui.Modal, title="정보 등록"):
                 name=name,
                 birth=birth,
                 school=school,
-                personal_phone_number=personal_phone_number,
                 parents_phone_number=parents_phone_number,
+                email=email,
                 exam_grades=last_member_data["성적"],
                 r_coin=last_member_data["r_coin"]
             )
@@ -181,8 +181,8 @@ class CreateStudentModal(discord.ui.Modal, title="정보 등록"):
                 name=name,
                 birth=birth,
                 school=school,
-                personal_phone_number=personal_phone_number,
-                parents_phone_number=parents_phone_number
+                parents_phone_number=parents_phone_number,
+                email=email,
             )
         await interaction.response.send_message(f"{interaction.user}님의 정보가 등록되었습니다.", ephemeral=True)
 
