@@ -44,9 +44,9 @@ class Attendance(commands.Cog):
     @attendance.error
     async def attendance_error(self, interaction, error):
         if not is_owner(interaction):
-            await interaction.response.send_message("선생님만 출석체크가 가능합니다.")
+            await interaction.response.send_message("선생님만 출석체크가 가능합니다.", ephemeral=True)
         elif not is_class(interaction):
-            await interaction.response.send_message("수업 채널에서만 출석체크가 가능합니다.")
+            await interaction.response.send_message("수업 채널에서만 출석체크가 가능합니다.", ephemeral=True)
         
 
 
