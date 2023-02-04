@@ -25,18 +25,18 @@ def update_member_data(discord_id, discord_name,
         "개인_연락처": personal_phone_number,
         "부모님_연락처": parents_phone_number,
         "성적": {
-            "1-1중간": exam_grades[0],
-            "1-1기말": exam_grades[1],
-            "1-2중간": exam_grades[2],
-            "1-2기말": exam_grades[3],
-            "2-1중간": exam_grades[4],
-            "2-1기말": exam_grades[5],
-            "2-2중간": exam_grades[6],
-            "2-2기말": exam_grades[7],
-            "3-1중간": exam_grades[8],
-            "3-1기말": exam_grades[9],
-            "3-2중간": exam_grades[10],
-            "3-2기말": exam_grades[11],
+            "중1-1중간": exam_grades[0],
+            "중1-1기말": exam_grades[1],
+            "중1-2중간": exam_grades[2],
+            "중1-2기말": exam_grades[3],
+            "중2-1중간": exam_grades[4],
+            "중2-1기말": exam_grades[5],
+            "중2-2중간": exam_grades[6],
+            "중2-2기말": exam_grades[7],
+            "중3-1중간": exam_grades[8],
+            "중3-1기말": exam_grades[9],
+            "중3-2중간": exam_grades[10],
+            "중3-2기말": exam_grades[11],
         },
         "r_coin": r_coin
     }
@@ -51,12 +51,7 @@ update_member_data(1058626232431951912, "테스트#1234", "장연철", "950522",
 
 
 a = db.member_data.find_one({"discord_id": 1058626232431951912})
+b = a["성적"]
+b["중1-1중간"] = "90"
+print(b["중1-1중간"])
 
-print(a["성적"])
-
-def k(a=2, b=3):
-    print(a)
-    print(b)
-    print(a+b)
-
-k(a=None, b=1)
