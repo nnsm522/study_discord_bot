@@ -4,6 +4,7 @@ import pymongo
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.utils import get
 
 
 load_dotenv(".env")
@@ -25,7 +26,8 @@ class Test(commands.Cog):
 
     @app_commands.command(name="테스트", description="테스트")
     async def information(self, interaction: discord.Interaction):
-        role = interaction.guild.get_role(1060440745582014474)
+        role = get(interaction.guild.roles, name="학생")
+        print(role)
         await interaction.user.add_roles(role)
         await interaction.response.send_message(f"{interaction.user.roles}", ephemeral=True)
 

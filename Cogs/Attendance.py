@@ -17,10 +17,10 @@ last_member_data = None
 def give_coin(key:dict):
     db.member_data.update_one(key, {"$inc": {"r_coin": 100}}, True)
 
-def is_owner(interaction):
+def is_owner(interaction: discord.Interaction):
     return interaction.user == interaction.guild.owner
-def is_class(interaction):
-    return str(interaction.channel) == "수업"
+def is_class(interaction: discord.Interaction):
+    return "교시" in str(interaction.channel)
 
 class Attendance(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -42,7 +42,7 @@ class Attendance(commands.Cog):
         await interaction.send("출석체크 완료")
 
     @attendance.error
-    async def attendance_error(self, interaction, error):
+    async def attendance_error(self, interaction: discord.Interaction, error):
         if not is_owner(interaction):
             await interaction.response.send_message("선생님만 출석체크가 가능합니다.", ephemeral=True)
         elif not is_class(interaction):
