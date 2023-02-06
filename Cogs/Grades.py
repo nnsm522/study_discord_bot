@@ -19,7 +19,7 @@ selected_grade = "중1"
 def import_member_data(discord_id):
     global last_member_data
     last_member_data = db.member_data.find_one({"discord_id": discord_id})
-
+   
 #DB 재호출
 def call_DB():
     global db
