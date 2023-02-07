@@ -4,6 +4,7 @@ import pymongo
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.utils import get
 
 load_dotenv(".env")
 MONGO_URL = os.getenv('MONGO_URL')
@@ -186,6 +187,8 @@ class CreateStudentModal(discord.ui.Modal, title="정보 등록"):
                 parents_phone_number=parents_phone_number,
                 email=email,
             )
+        #학생 역할 부여
+        await interaction.user.add_roles(get(interaction.guild.roles, name="학생"))
         await interaction.response.send_message(f"{interaction.user}님의 정보가 등록되었습니다.", ephemeral=True)
 
 #삭제, 취소 버튼
@@ -195,6 +198,13 @@ class DeleteButtonView(discord.ui.View):
     @discord.ui.button(label="삭제", style=discord.ButtonStyle.danger)
     async def delete_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         delete_member_data(interaction.user.id)
+        #역할 모두 삭제
+        for role in interaction.user.roles:
+            if(str(role) == "@everyone"):
+                pass
+            else:
+                await interaction.user.remove_roles(get(interaction.user.roles, name=str(role)))
+        await interaction.response.send_message(f"{interaction.user.roles}", ephemeral=True)
         await interaction.response.send_message("정보가 삭제되었습니다.", ephemeral=True)
     @discord.ui.button(label="취소", style=discord.ButtonStyle.grey)
     async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):

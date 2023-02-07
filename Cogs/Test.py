@@ -26,9 +26,13 @@ class Test(commands.Cog):
 
     @app_commands.command(name="테스트", description="테스트")
     async def information(self, interaction: discord.Interaction):
-        role = get(interaction.guild.roles, name="학생")
-        print(role)
-        await interaction.user.add_roles(role)
+        roles = interaction.user.roles
+        print(roles)
+        for role in roles:
+            if(str(role) == "@everyone"):
+                pass
+            else:
+                await interaction.user.remove_roles(get(interaction.user.roles, name=str(role)))
         await interaction.response.send_message(f"{interaction.user.roles}", ephemeral=True)
 
 

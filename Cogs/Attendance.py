@@ -19,8 +19,10 @@ def give_coin(key:dict):
 
 def is_owner(interaction: discord.Interaction):
     return interaction.user == interaction.guild.owner
+    
 def is_class(interaction: discord.Interaction):
     return "교시" in str(interaction.channel)
+
 
 class Attendance(commands.Cog):
     def __init__(self, bot: commands.Bot):
