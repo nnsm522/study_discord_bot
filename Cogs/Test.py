@@ -16,9 +16,6 @@ db = mongo_client.member
 last_member_data = None
 
 
-
-
-
 class Test(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot

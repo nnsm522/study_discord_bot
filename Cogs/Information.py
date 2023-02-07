@@ -204,7 +204,6 @@ class DeleteButtonView(discord.ui.View):
                 pass
             else:
                 await interaction.user.remove_roles(get(interaction.user.roles, name=str(role)))
-        await interaction.response.send_message(f"{interaction.user.roles}", ephemeral=True)
         await interaction.response.send_message("정보가 삭제되었습니다.", ephemeral=True)
     @discord.ui.button(label="취소", style=discord.ButtonStyle.grey)
     async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
