@@ -9,15 +9,15 @@ load_dotenv(".env")
 MONGO_URL = os.getenv('MONGO_URL')
 GUILD_ID = os.getenv('GUILD_ID')
 
-mongo_client = pymongo.MongoClient(MONGO_URL)
-
 
 #command 호출한 사람의 데이터 불러오기
 def import_member_data(discord_id):
+    mongo_client = pymongo.MongoClient(MONGO_URL)
     db = mongo_client.member
     return db.member_data.find_one({"discord_id": discord_id})
    
 def update_member_data(discord_id, exam_grades):
+    mongo_client = pymongo.MongoClient(MONGO_URL)
     db = mongo_client.member
     key = {"discord_id": discord_id}
     data = {"성적": exam_grades}
@@ -26,32 +26,33 @@ def update_member_data(discord_id, exam_grades):
     except Exception as e:
         print(f"error: {e}")
     else:
+        mongo_client.close()
         print("DB update Success!")
 
 #t성적 입력/수정 시 Modal창에 기본으로 입력되어있을 값 수정
-def default_data_setting(member_data, grade):
+def default_data_setting(view: discord.ui.Modal, member_data, grade):
     if member_data is not None:
-        InputGradesModal.member_data = member_data
-        InputGradesModal.grade = grade
-        InputGradesModal.grades1.label = f"{grade}-1중간"
-        InputGradesModal.grades2.label = f"{grade}-1기말"
-        InputGradesModal.grades3.label = f"{grade}-2중간"
-        InputGradesModal.grades4.label = f"{grade}-2기말"
-        InputGradesModal.grades1.default = member_data["성적"][f"{grade}-1중간"]
-        InputGradesModal.grades2.default = member_data["성적"][f"{grade}-1기말"]
-        InputGradesModal.grades3.default = member_data["성적"][f"{grade}-2중간"]
-        InputGradesModal.grades4.default = member_data["성적"][f"{grade}-2기말"]
+        view.member_data = member_data
+        view.grade = grade
+        view.grades1.label = f"{grade}-1중간"
+        view.grades2.label = f"{grade}-1기말"
+        view.grades3.label = f"{grade}-2중간"
+        view.grades4.label = f"{grade}-2기말"
+        view.grades1.default = member_data["성적"][f"{grade}-1중간"]
+        view.grades2.default = member_data["성적"][f"{grade}-1기말"]
+        view.grades3.default = member_data["성적"][f"{grade}-2중간"]
+        view.grades4.default = member_data["성적"][f"{grade}-2기말"]
     else:
-        InputGradesModal.member_data = member_data
-        InputGradesModal.grade = grade
-        InputGradesModal.grades1.label = f"{grade}-1중간"
-        InputGradesModal.grades2.label = f"{grade}-1기말"
-        InputGradesModal.grades3.label = f"{grade}-2중간"
-        InputGradesModal.grades4.label = f"{grade}-2기말"
-        InputGradesModal.grades1.default = None
-        InputGradesModal.grades2.default = None
-        InputGradesModal.grades3.default = None
-        InputGradesModal.grades4.default = None
+        view.member_data = member_data
+        view.grade = grade
+        view.grades1.label = f"{grade}-1중간"
+        view.grades2.label = f"{grade}-1기말"
+        view.grades3.label = f"{grade}-2중간"
+        view.grades4.label = f"{grade}-2기말"
+        view.grades1.default = None
+        view.grades2.default = None
+        view.grades3.default = None
+        view.grades4.default = None
         
 #정보조회 내용
 def read_data(data):
@@ -80,8 +81,9 @@ class Grades(commands.Cog):
     async def grades(self, interaction: discord.Interaction):
         member_data = import_member_data(interaction.user.id)
         if member_data is not None:
-            GradesButtonView.member_data = member_data
-            await interaction.response.send_message("원하는 활동을 선택해주세요.", view=GradesButtonView(), ephemeral=True)
+            view = GradesButtonView()
+            view.member_data = member_data
+            await interaction.response.send_message("원하는 활동을 선택해주세요.", view=view, ephemeral=True)
         else:
             await interaction.response.send_message("정보를 먼저 등록해주세요. [/정보]", ephemeral=True)
 
@@ -98,8 +100,9 @@ class GradesButtonView(discord.ui.View):
 
     @discord.ui.button(label="성적 입력/수정", style=discord.ButtonStyle.primary)
     async def update_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        GradeButtonView.member_data = self.member_data
-        await interaction.response.send_message("성적을 입력/수정할 학년을 선택해주세요.", view=GradeButtonView(), ephemeral=True)
+        view = GradeButtonView()
+        view.member_data = self.member_data
+        await interaction.response.send_message("성적을 입력/수정할 학년을 선택해주세요.", view=view, ephemeral=True)
         self.stop()
 
 #성적 입력할 학년 선택
@@ -109,18 +112,21 @@ class GradeButtonView(discord.ui.View):
     member_data = None
     @discord.ui.button(label="중1 성적", style=discord.ButtonStyle.primary)
     async def select_button1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        default_data_setting(self.member_data, grade="중1")
-        await interaction.response.send_modal(InputGradesModal())
+        input_grades_modal = InputGradesModal()
+        default_data_setting(input_grades_modal, self.member_data, "중1")
+        await interaction.response.send_modal(input_grades_modal)
         self.stop()
     @discord.ui.button(label="중2 성적", style=discord.ButtonStyle.primary)
     async def select_button2(self, interaction: discord.Interaction, button: discord.ui.Button):
-        default_data_setting(self.member_data, grade="중2")
-        await interaction.response.send_modal(InputGradesModal())
+        input_grades_modal = InputGradesModal()
+        default_data_setting(input_grades_modal, self.member_data, "중2")
+        await interaction.response.send_modal(input_grades_modal)
         self.stop()
     @discord.ui.button(label="중3 성적", style=discord.ButtonStyle.primary)
     async def select_button3(self, interaction: discord.Interaction, button: discord.ui.Button):
-        default_data_setting(self.member_data, grade="중3")
-        await interaction.response.send_modal(InputGradesModal())
+        input_grades_modal = InputGradesModal()
+        default_data_setting(input_grades_modal, self.member_data, "중3")
+        await interaction.response.send_modal(input_grades_modal)
         self.stop()
 
 
@@ -134,10 +140,6 @@ class InputGradesModal(discord.ui.Modal, title="정보 등록"):
     member_data = None
     
     async def on_submit(self, interaction: discord.Interaction) -> None:
-        print(interaction.data["components"][0]["components"][0]["value"])
-        print(interaction.data["components"][0]["components"][0])
-        print(interaction.data["components"][0]["components"])
-        print(interaction.data["components"][0])
         grades_data = self.member_data["성적"]
         grades_data[f"{self.grade}-1중간"] = interaction.data["components"][0]["components"][0]["value"]
         grades_data[f"{self.grade}-1기말"] = interaction.data["components"][1]["components"][0]["value"]

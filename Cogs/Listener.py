@@ -2,23 +2,21 @@ import os
 from dotenv import load_dotenv
 import pymongo
 import discord
-from discord import app_commands
 from discord.ext import commands
-from discord.utils import get
 
 load_dotenv(".env")
 MONGO_URL = os.getenv('MONGO_URL')
 GUILD_ID = os.getenv('GUILD_ID')
 
-mongo_client = pymongo.MongoClient(MONGO_URL)
-db = mongo_client.member
 
 def delete_member_data(discord_id, discord_name):
     try:
-        db.member_data.delete_one({"discord_id": discord_id})
+        mongo_client = pymongo.MongoClient(MONGO_URL)
+        mongo_client.member.member_data.delete_one({"discord_id": discord_id})
     except Exception as e:
         print(f"error: {e}")
     else:
+        mongo_client.close()
         print(f"{discord_name} 님이 서버를 탈퇴하셨습니다.")
 
 class Listener(commands.Cog):
@@ -38,7 +36,6 @@ class Listener(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         delete_member_data(member.id, str(member))
-
 
 
 
