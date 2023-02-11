@@ -30,29 +30,29 @@ def update_member_data(discord_id, exam_grades):
         print("DB update Success!")
 
 #t성적 입력/수정 시 Modal창에 기본으로 입력되어있을 값 수정
-def default_data_setting(view: discord.ui.Modal, member_data, grade):
+def default_data_setting(modal: discord.ui.Modal, member_data, grade):
     if member_data is not None:
-        view.member_data = member_data
-        view.grade = grade
-        view.grades1.label = f"{grade}-1중간"
-        view.grades2.label = f"{grade}-1기말"
-        view.grades3.label = f"{grade}-2중간"
-        view.grades4.label = f"{grade}-2기말"
-        view.grades1.default = member_data["성적"][f"{grade}-1중간"]
-        view.grades2.default = member_data["성적"][f"{grade}-1기말"]
-        view.grades3.default = member_data["성적"][f"{grade}-2중간"]
-        view.grades4.default = member_data["성적"][f"{grade}-2기말"]
+        modal.member_data = member_data
+        modal.grade = grade
+        modal.grades1.label = f"{grade}-1중간"
+        modal.grades2.label = f"{grade}-1기말"
+        modal.grades3.label = f"{grade}-2중간"
+        modal.grades4.label = f"{grade}-2기말"
+        modal.grades1.default = member_data["성적"][f"{grade}-1중간"]
+        modal.grades2.default = member_data["성적"][f"{grade}-1기말"]
+        modal.grades3.default = member_data["성적"][f"{grade}-2중간"]
+        modal.grades4.default = member_data["성적"][f"{grade}-2기말"]
     else:
-        view.member_data = member_data
-        view.grade = grade
-        view.grades1.label = f"{grade}-1중간"
-        view.grades2.label = f"{grade}-1기말"
-        view.grades3.label = f"{grade}-2중간"
-        view.grades4.label = f"{grade}-2기말"
-        view.grades1.default = None
-        view.grades2.default = None
-        view.grades3.default = None
-        view.grades4.default = None
+        modal.member_data = member_data
+        modal.grade = grade
+        modal.grades1.label = f"{grade}-1중간"
+        modal.grades2.label = f"{grade}-1기말"
+        modal.grades3.label = f"{grade}-2중간"
+        modal.grades4.label = f"{grade}-2기말"
+        modal.grades1.default = None
+        modal.grades2.default = None
+        modal.grades3.default = None
+        modal.grades4.default = None
         
 #정보조회 내용
 def read_data(data):
@@ -112,21 +112,21 @@ class GradeButtonView(discord.ui.View):
     member_data = None
     @discord.ui.button(label="중1 성적", style=discord.ButtonStyle.primary)
     async def select_button1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        input_grades_modal = InputGradesModal()
-        default_data_setting(input_grades_modal, self.member_data, "중1")
-        await interaction.response.send_modal(input_grades_modal)
+        modal = InputGradesModal()
+        default_data_setting(modal, self.member_data, "중1")
+        await interaction.response.send_modal(modal)
         self.stop()
     @discord.ui.button(label="중2 성적", style=discord.ButtonStyle.primary)
     async def select_button2(self, interaction: discord.Interaction, button: discord.ui.Button):
-        input_grades_modal = InputGradesModal()
-        default_data_setting(input_grades_modal, self.member_data, "중2")
-        await interaction.response.send_modal(input_grades_modal)
+        modal = InputGradesModal()
+        default_data_setting(modal, self.member_data, "중2")
+        await interaction.response.send_modal(modal)
         self.stop()
     @discord.ui.button(label="중3 성적", style=discord.ButtonStyle.primary)
     async def select_button3(self, interaction: discord.Interaction, button: discord.ui.Button):
-        input_grades_modal = InputGradesModal()
-        default_data_setting(input_grades_modal, self.member_data, "중3")
-        await interaction.response.send_modal(input_grades_modal)
+        modal = InputGradesModal()
+        default_data_setting(modal, self.member_data, "중3")
+        await interaction.response.send_modal(modal)
         self.stop()
 
 
