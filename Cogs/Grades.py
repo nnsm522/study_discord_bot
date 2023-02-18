@@ -12,9 +12,15 @@ GUILD_ID = os.getenv('GUILD_ID')
 
 #command 호출한 사람의 데이터 불러오기
 def import_member_data(discord_id):
-    mongo_client = pymongo.MongoClient(MONGO_URL)
-    db = mongo_client.member
-    return db.member_data.find_one({"discord_id": discord_id})
+    try:
+        mongo_client = pymongo.MongoClient(MONGO_URL)
+        db = mongo_client.member
+        data = db.member_data.find_one({"discord_id": discord_id})
+    except Exception as e:
+        print(e)
+    else:
+        mongo_client.close()
+        return data
    
 def update_member_data(discord_id, exam_grades):
     mongo_client = pymongo.MongoClient(MONGO_URL)

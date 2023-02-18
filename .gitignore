@@ -1,4 +1,6 @@
 .env
-data
 venv
 Cogs/__pycache__
+__pycache__
+credentials.json
+test.py
