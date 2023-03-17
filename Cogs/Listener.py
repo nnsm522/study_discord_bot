@@ -25,7 +25,7 @@ class Listener(commands.Cog):
         
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        db_module.delete_member_data(member.id)
+        await db_module.delete_member_data(member.id)
         print(f"{str(member)} 서버 탈퇴")
 
 

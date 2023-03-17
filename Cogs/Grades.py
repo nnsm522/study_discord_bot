@@ -1,39 +1,13 @@
 import os
 from dotenv import load_dotenv
-import pymongo
 import discord
 from discord import app_commands
 from discord.ext import commands
+import db_module
 
 load_dotenv(".env")
-MONGO_URL = os.getenv('MONGO_URL')
 GUILD_ID = os.getenv('GUILD_ID')
 
-
-#command 호출한 사람의 데이터 불러오기
-def import_member_data(discord_id):
-    try:
-        mongo_client = pymongo.MongoClient(MONGO_URL)
-        db = mongo_client.member
-        data = db.member_data.find_one({"discord_id": discord_id})
-    except Exception as e:
-        print(e)
-    else:
-        mongo_client.close()
-        return data
-   
-def update_member_data(discord_id, exam_grades):
-    mongo_client = pymongo.MongoClient(MONGO_URL)
-    db = mongo_client.member
-    key = {"discord_id": discord_id}
-    data = {"성적": exam_grades}
-    try:
-        db.member_data.update_one(key, {"$set": data}, True)
-    except Exception as e:
-        print(f"error: {e}")
-    else:
-        mongo_client.close()
-        print("DB update Success!")
 
 #t성적 입력/수정 시 Modal창에 기본으로 입력되어있을 값 수정
 def default_data_setting(modal: discord.ui.Modal, member_data, grade):
@@ -85,7 +59,7 @@ class Grades(commands.Cog):
 
     @app_commands.command(name="성적", description="성적 입력, 조회")
     async def grades(self, interaction: discord.Interaction):
-        member_data = import_member_data(interaction.user.id)
+        member_data = db_module.import_member_data(interaction.user.id)
         if member_data is not None:
             view = GradesButtonView()
             view.member_data = member_data
@@ -146,13 +120,12 @@ class InputGradesModal(discord.ui.Modal, title="정보 등록"):
     member_data = None
     
     async def on_submit(self, interaction: discord.Interaction) -> None:
-        grades_data = self.member_data["성적"]
-        grades_data[f"{self.grade}-1중간"] = interaction.data["components"][0]["components"][0]["value"]
-        grades_data[f"{self.grade}-1기말"] = interaction.data["components"][1]["components"][0]["value"]
-        grades_data[f"{self.grade}-2중간"] = interaction.data["components"][2]["components"][0]["value"]
-        grades_data[f"{self.grade}-2기말"] = interaction.data["components"][3]["components"][0]["value"]
+        self.member_data["성적"][f"{self.grade}-1중간"] = interaction.data["components"][0]["components"][0]["value"]
+        self.member_data["성적"][f"{self.grade}-1기말"] = interaction.data["components"][1]["components"][0]["value"]
+        self.member_data["성적"][f"{self.grade}-2중간"] = interaction.data["components"][2]["components"][0]["value"]
+        self.member_data["성적"][f"{self.grade}-2기말"] = interaction.data["components"][3]["components"][0]["value"]
 
-        update_member_data(discord_id=interaction.user.id, exam_grades=grades_data)
+        db_module.update_member_data(self.member_data)
 
         await interaction.response.send_message(f"{interaction.user}님의 {self.grade} 성적이 등록되었습니다.", ephemeral=True)
 

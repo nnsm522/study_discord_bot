@@ -5,7 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.utils import get
-import db_module
+import db_module, google_module
 
 load_dotenv(".env")
 MONGO_URL = os.getenv('MONGO_URL')
@@ -88,7 +88,7 @@ class InfoButtonView(discord.ui.View):
         member_data = db_module.import_member_data(interaction.user.id)
         if member_data is not None :
             view = DeleteButtonView()
-            await interaction.response.send_message("정보를 삭제하시면 점수, 알코인 등의 데이터는 복구되지 않습니다.", view=view, ephemeral=True)
+            await interaction.response.send_message("정보를 삭제하시면 데이터는 복구되지 않습니다.", view=view, ephemeral=True)
         else:
             await interaction.response.send_message("등록되지 않은 ID 입니다. 정보를 먼저 등록해주세요.", ephemeral=True)
         self.stop()
@@ -106,6 +106,7 @@ class InputInformationModal(discord.ui.Modal, title="정보 등록"):
         if self.member_data is None:
             self.member_data = db_module.member_data_model()
 
+        # 입력 정보 db 저장
         self.member_data["discord_id"] = interaction.user.id
         self.member_data["discord_name"] = str(interaction.user)
         self.member_data["이름"] = interaction.data["components"][0]["components"][0]["value"]
@@ -119,6 +120,8 @@ class InputInformationModal(discord.ui.Modal, title="정보 등록"):
         #학생 역할 부여
         await interaction.user.add_roles(get(interaction.guild.roles, name="학생"))
         await interaction.response.send_message(f"{interaction.user}님의 정보가 등록되었습니다.", ephemeral=True)
+
+    
 
 #삭제, 취소 버튼
 class DeleteButtonView(discord.ui.View):

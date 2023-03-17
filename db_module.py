@@ -6,7 +6,6 @@ load_dotenv(".env")
 MONGO_URL = os.getenv('MONGO_URL')
 GUILD_ID = os.getenv('GUILD_ID')
 
-
 def import_member_data(discord_id):
     try:
         mongo_client = pymongo.MongoClient(MONGO_URL)
@@ -28,7 +27,7 @@ def update_member_data(data:dict):
         print(f"error: {e}")
     else:
         mongo_client.close()
-        print("DB update Success!")
+        print("Member data update Success!")
 
 def delete_member_data(discord_id):
     try:
@@ -39,7 +38,7 @@ def delete_member_data(discord_id):
         print(f"error: {e}")
     else:
         mongo_client.close()
-        print("DB delete Success!")
+        print(f"Member data delete Success!")
 
 def member_data_model(
         discord_id:str=None,
@@ -64,7 +63,6 @@ def member_data_model(
             "중3-2기말": None,
         },
         r_coin:int=0,
-        token:str=None
 ):
     data = {
         "discord_id": discord_id,
@@ -76,21 +74,19 @@ def member_data_model(
         "이메일": email,
         "성적": exam_grades,
         "r_coin": r_coin,
-        "token": token
     }
     return data
 
-def attendance_check(members):
-    mongo_client = pymongo.MongoClient(MONGO_URL)
-    db = mongo_client.member
-    success = []
-    fail = []
-    for member in members:
-        try:
-            db.member_data.update_one({"discord_id": member.id}, {"$inc": {"r_coin": 100}}, True)
-        except Exception as e:
-            print(e)
-            fail.append(str(member))
-        else:
-            success.append(str(member))
+
+def update_token(discord_id, creds):
+    try:
+        mongo_client = pymongo.MongoClient(MONGO_URL)
+        db = mongo_client.member
+        db.member_data.update_one({"discord_id": discord_id}, {"$set": {"token": creds.to_json()}}, True)
+    except Exception as e:
+        print(f"error: {e}")
+    else:
+        mongo_client.close()
+        print(f"token update Success!")
+    
 
